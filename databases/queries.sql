@@ -1,12 +1,12 @@
---12. FORMULAREA ȘI REZOLVAREA A 5 CERERI SQL
+--12. FORMULAREA ?I REZOLVAREA A 5 CERERI SQL
 --CEREREA I
 --Sa se afiseze pentru fiecare taxa ID-ul, suma initiala (daca nu exista atunci se va afisa 0), 
---suma marita cu 15% în cazul în care exemplarul împrumutat apartine sectiunii „Matematica” 
---si cu 20% în cazul în care exemplarul împrumutat apartine sectiunii „Literatura”. 
---În plus se vor afisa si codul exemplarului împrumutat, titlul cartii, precum si numele sectiunii din care face parte.
---Datele vor fi ordonate în ordinea descrescatoare a sumelor marite. 
+--suma marita cu 15% �n cazul �n care exemplarul �mprumutat apartine sectiunii �Matematica� 
+--si cu 20% �n cazul �n care exemplarul �mprumutat apartine sectiunii �Literatura�. 
+--�n plus se vor afisa si codul exemplarului �mprumutat, titlul cartii, precum si numele sectiunii din care face parte.
+--Datele vor fi ordonate �n ordinea descrescatoare a sumelor marite. 
 
---În cadrul acestei cereri am utilizat funțiile NVL și Decode, precum și clauza ORDER BY.
+--�n cadrul acestei cereri am utilizat fun?iile NVL ?i Decode, precum ?i clauza ORDER BY.
 
 SELECT T.ID_TAXA, NVL(T.SUMA, 0) AS SUMA_INITIALA,
   NVL(T.SUMA * 
@@ -21,12 +21,12 @@ LEFT JOIN CARTE C ON E.ID_CARTE = C.ID_CARTE
 ORDER BY SUMA_MARITA DESC;
 
 --CEREREA II
---Sa se afiseze id-ul, numele complet al cititorilor care au împrumutat carti din sectiunile literatura
---si matematica si le-au returnat în mai putin de 35 de zile, id-ul exemplarului împrumutat, titlurile cartilor împrumutate,
---durata împrumutului, precum si ziua din saptamâna în care le-au returnat.
+--Sa se afiseze id-ul, numele complet al cititorilor care au �mprumutat carti din sectiunile literatura
+--si matematica si le-au returnat �n mai putin de 35 de zile, id-ul exemplarului �mprumutat, titlurile cartilor �mprumutate,
+--durata �mprumutului, precum si ziua din saptam�na �n care le-au returnat.
 
---În cadrul acestei cereri am utilizat un bloc de cerere cu clauza WITH, subcereri sincronizate cu min 4 tabele,
---precum și funcții pe șiruri de caractere și date calendaristice (TO_CHAR, UPPER, CONCAT).
+--�n cadrul acestei cereri am utilizat un bloc de cerere cu clauza WITH, subcereri sincronizate cu min 4 tabele,
+--precum ?i func?ii pe ?iruri de caractere ?i date calendaristice (TO_CHAR, UPPER, CONCAT).
 
 WITH DATE_CERUTE AS (
     SELECT I.ID_EXEMPLAR, I.ID_CITITOR, CT.TITLU, SEC.NUME_SECTIUNE,(I.DATA_RETURNARE-I.DATA_IMPRUMUT) AS DURATA_IMPRUMUT, I.DATA_RETURNARE,
@@ -67,10 +67,10 @@ WHERE C.NUMAR_PAGINI>D.MEDIE_PAGINI AND C.ID_CARTE IN
  WHERE E.ID_CARTE=C.ID_CARTE AND UPPER(SEC.NUME_SECTIUNE)='IT');
 
 --CEREREA III
---Sa se afiseze date despre edituri, precum si numarul total de împrumuturi pe care le-au avut exemplarele cartilor publicate de aceste edituri.
---Datele for fi afisate în ordinea descrescatoare numarului de împumuturi, de asemenea se vor omite editurile care au avut mai putin de 2 împrumuturi.
+--Sa se afiseze date despre edituri, precum si numarul total de �mprumuturi pe care le-au avut exemplarele cartilor publicate de aceste edituri.
+--Datele for fi afisate �n ordinea descrescatoare numarului de �mpumuturi, de asemenea se vor omite editurile care au avut mai putin de 2 �mprumuturi.
 
---În cadrul acestei cereri am utilizat funcții de grup și filtrare la nivel de grupuri, precum și subcereri sincronizate în care intervin min 3 tabele.
+--�n cadrul acestei cereri am utilizat func?ii de grup ?i filtrare la nivel de grupuri, precum ?i subcereri sincronizate �n care intervin min 3 tabele.
 
 SELECT E.id_editura, E.nume_editura,
     SUM(TOTAL_IMPRUMUTURI) AS numar_total_imprumuturi
@@ -88,11 +88,11 @@ ORDER BY numar_total_imprumuturi DESC;
 
 
 --CEREREA IV 
---Sa se afiseze id-ul cartilor, titlurile cartilor precum si numarul de exemplare existente în biblioteca din fiecare carte,
---urmat de frecventa cartii („carte rara” daca numarul de exemplare e mai mic decât 3, „carte comuna” daca numarul de exemplare e cuprins 
---între 3 si 5, respectiv „carte populara” daca numarul de exemplare este mai mare de 5).
+--Sa se afiseze id-ul cartilor, titlurile cartilor precum si numarul de exemplare existente �n biblioteca din fiecare carte,
+--urmat de frecventa cartii (�carte rara� daca numarul de exemplare e mai mic dec�t 3, �carte comuna� daca numarul de exemplare e cuprins 
+--�ntre 3 si 5, respectiv �carte populara� daca numarul de exemplare este mai mare de 5).
 
---În cadrul acestei cereri am uitilizat o subcere nesincronizata în clauza FROM, precum si o expresie CASE.
+--�n cadrul acestei cereri am uitilizat o subcere nesincronizata �n clauza FROM, precum si o expresie CASE.
 
 SELECT C.ID_CARTE, C.TITLU, EXP.NR "NR EXEMPLARE",
     CASE 
@@ -110,11 +110,11 @@ WHERE C.ID_CARTE = EXP.ID_CARTE;
 
 
 --CEREREA V
---Să se afiseze id-ul, numele, prenumele si anul în care s-au înscris la biblioteca 
---al cititorilor care au împrumutat carti cu un număr de pagini mai mare decât media numărului de pagini al tuturor cărților disponibile.
---În plus se va afișa pentru fiecare cititor și numărul de astfel de împrumuturi.
+--S? se afiseze id-ul, numele, prenumele si anul �n care s-au �nscris la biblioteca 
+--al cititorilor care au �mprumutat carti cu un num?r de pagini mai mare dec�t media num?rului de pagini al tuturor c?r?ilor disponibile.
+--�n plus se va afi?a pentru fiecare cititor ?i num?rul de astfel de �mprumuturi.
 
---În cadrul acestei cereri am uitilizat subcereri nesincronizate cu minim 3 tabele precum și o funcție pe date calendaristice(EXTRACT)
+--�n cadrul acestei cereri am uitilizat subcereri nesincronizate cu minim 3 tabele precum ?i o func?ie pe date calendaristice(EXTRACT)
     
 SELECT C.id_cititor, C.nume, C.prenume, COUNT(*) AS numar_imprumuturi, EXTRACT(YEAR FROM C.DATA_INSCRIERE) AS AN_INSCRIERE
 FROM CITITOR C
@@ -133,8 +133,8 @@ GROUP BY C.id_cititor, C.nume, C.prenume, EXTRACT(YEAR FROM C.DATA_INSCRIERE);
 --13. OPERATII DE ACTUALIZARE SI DE SUPRIMARE A DATELOR UTILIZAND SUBCERERI
 
 --1
---Să se actualizeze statusul cărților din tabela EXEMPLAR pentru acele exemplare
---care figurează ca împrumutate și încă nereturnate în tabela ÎMPRUMUT.
+--S? se actualizeze statusul c?r?ilor din tabela EXEMPLAR pentru acele exemplare
+--care figureaz? ca �mprumutate ?i �nc? nereturnate �n tabela �MPRUMUT.
 
 UPDATE EXEMPLAR
 SET status = (
@@ -156,9 +156,9 @@ WHERE id_exemplar IN (
 SELECT * FROM EXEMPLAR;
 
 --2
---Modificați tabelul TAXA astfel încât pentru exemplarele împrumutate să se calculeze suma pe care cititorii trebuie să o plătescă. 
---De asemenea schimbați informațiile despre statusul și data achitării taxei. Data achitării trebuie să coincidă cu data 
---returnării exemplarului din tabela ÎMPRUMUT, iar statusul va fi setat la "achitat".
+--Modifica?i tabelul TAXA astfel �nc�t pentru exemplarele �mprumutate s? se calculeze suma pe care cititorii trebuie s? o pl?tesc?. 
+--De asemenea schimba?i informa?iile despre statusul ?i data achit?rii taxei. Data achit?rii trebuie s? coincid? cu data 
+--return?rii exemplarului din tabela �MPRUMUT, iar statusul va fi setat la "achitat".
 
 UPDATE TAXA
 SET suma = CASE
@@ -207,7 +207,7 @@ WHERE id_taxa IN (
 );
 
 --3
---Creați o comandă SQL prin care să se șteargă datele tuturor bibliotecarilor care nu se ocupă de nicio secțiune a bibliotecii.
+--Crea?i o comand? SQL prin care s? se ?tearg? datele tuturor bibliotecarilor care nu se ocup? de nicio sec?iune a bibliotecii.
 
 DELETE FROM BIBLIOTECAR B
 WHERE B.id_bibliotecar NOT IN (
@@ -234,10 +234,10 @@ WHERE ID_CARTE=120;
 
 --15.
 --OUTER-JOIN
---Creati o condică pentru starea împrumuturilor bibliotecii.
---În condică vor fi afișați cititorii bibliotecii care au împrumutat cărți, precum și titlurile cărților împrumutate
---urmați de cititorii care nu au împrumutat nicio carte. 
---În condică se vor adăuga la final cărțile ale căror exemplare nu au fost împrumutate de niciun cititor.
+--Creati o condic? pentru starea �mprumuturilor bibliotecii.
+--�n condic? vor fi afi?a?i cititorii bibliotecii care au �mprumutat c?r?i, precum ?i titlurile c?r?ilor �mprumutate
+--urma?i de cititorii care nu au �mprumutat nicio carte. 
+--�n condic? se vor ad?uga la final c?r?ile ale c?ror exemplare nu au fost �mprumutate de niciun cititor.
 
 SELECT DISTINCT C.ID_CITITOR, CONCAT(CONCAT(C.NUME, ' '), C.PRENUME) AS "CITITOR", C1.TITLU AS "TITLU CARTE", ED.NUME_EDITURA "TITLU_EDITURA"
 FROM CITITOR C 
