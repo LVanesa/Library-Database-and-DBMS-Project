@@ -1,0 +1,3 @@
+# University Library Database :books:
+
+The University Library Database Project is a comprehensive system built in SQL and PL/SQL. It was designed to efficiently manage and organize the resources of a university library. Developed as part of my coursework for databases and database management systems, this project serves as a demonstration of my proficiency in database design, implementation, and management.

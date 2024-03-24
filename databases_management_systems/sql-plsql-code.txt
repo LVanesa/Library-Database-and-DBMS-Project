@@ -1,0 +1,1156 @@
+--4 CREAREA TABELELOR
+
+----1. Tabelul Bibliotecar 
+CREATE SEQUENCE seq_bibliotecar
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 100
+  NOCYCLE;
+
+CREATE TABLE BIBLIOTECAR (
+  id_bibliotecar NUMBER(6) CONSTRAINT pk_bibliotecar PRIMARY KEY,
+  nume VARCHAR2(100) NOT NULL,
+  prenume VARCHAR2(100) NOT NULL,
+  email VARCHAR2(100) NOT NULL,
+  nr_telefon VARCHAR2(14),
+  data_angajare DATE NOT NULL,
+  salariu NUMBER NOT NULL
+);
+
+----2. Tabelul Sectiune
+CREATE TABLE SECTIUNE (
+  id_sectiune NUMBER(6) CONSTRAINT pk_sectiune PRIMARY KEY,
+  id_bibliotecar NUMBER(6) NOT NULL,
+  nume_sectiune VARCHAR2(100) NOT NULL,
+  CONSTRAINT fk_sectiune_bibliotecar FOREIGN KEY (id_bibliotecar) REFERENCES BIBLIOTECAR(id_bibliotecar)
+);
+
+----3. Tabelul Categorie
+CREATE TABLE CATEGORIE (
+  id_categorie NUMBER(6) CONSTRAINT pk_categorie PRIMARY KEY,
+  id_sectiune NUMBER(6) NOT NULL,
+  nume_categorie VARCHAR2(100) NOT NULL,
+  CONSTRAINT fk_categorie_sectiune FOREIGN KEY (id_sectiune) REFERENCES SECTIUNE(id_sectiune)
+);
+
+----4. Tabelul Editura
+CREATE TABLE EDITURA (
+  id_editura NUMBER(6) CONSTRAINT pk_editura PRIMARY KEY,
+  nume_editura VARCHAR2(100) NOT NULL,
+  email VARCHAR2(100) NOT NULL,
+  nr_telefon VARCHAR2(14)
+);
+
+----5. Tabelul Autor
+CREATE SEQUENCE seq_autor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 10000
+  NOCACHE
+  NOCYCLE;
+
+CREATE TABLE AUTOR (
+  id_autor NUMBER(6) CONSTRAINT pk_autor PRIMARY KEY,
+  nume VARCHAR2(100) NOT NULL,
+  prenume VARCHAR2(100) NOT NULL,
+  data_nastere DATE
+);
+
+----6. Tabelul Carte
+CREATE SEQUENCE seq_carte 
+  START WITH 1 
+  INCREMENT BY 1
+  MAXVALUE 100000
+  NOCYCLE;
+
+CREATE TABLE CARTE (
+  id_carte NUMBER(6) CONSTRAINT pk_carte PRIMARY KEY,
+  id_editura NUMBER(6) NOT NULL,
+  id_categorie NUMBER(6) NOT NULL,
+  titlu VARCHAR2(200) NOT NULL,
+  an_publicare NUMBER(4),
+  numar_pagini NUMBER(4),
+  CONSTRAINT fk_carte_editura FOREIGN KEY (id_editura) REFERENCES EDITURA(id_editura),
+  CONSTRAINT fk_carte_categorie FOREIGN KEY (id_categorie) REFERENCES CATEGORIE(id_categorie)
+);
+
+
+----7. Tabelul scriere
+CREATE TABLE SCRIERE (
+  id_autor NUMBER(6) NOT NULL,
+  id_carte NUMBER(6) NOT NULL,
+  CONSTRAINT fk_autor FOREIGN KEY (id_autor) REFERENCES AUTOR(id_autor),
+  CONSTRAINT fk_carte FOREIGN KEY (id_carte) REFERENCES CARTE(id_carte),
+  CONSTRAINT pk_autor_scrie_carte PRIMARY KEY(id_autor, id_carte)
+);
+
+----8. Tabelul Exemplar 
+CREATE SEQUENCE seq_exemplar 
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE  10000000
+  NOCACHE
+  NOCYCLE;
+
+
+CREATE TABLE EXEMPLAR (
+  id_exemplar NUMBER(6) CONSTRAINT pk_exemplar PRIMARY KEY,
+  id_carte NUMBER(6) NOT NULL,
+  status VARCHAR2(30),
+  stare VARCHAR2(30),
+  CONSTRAINT fk_exemplar_carte FOREIGN KEY (id_carte) REFERENCES CARTE(id_carte)
+);
+
+
+ALTER TABLE EXEMPLAR
+ADD CONSTRAINT check_status
+CHECK (status in ('IMPRUMUTAT', 'DISPONIBIL'));
+
+ALTER TABLE EXEMPLAR
+ADD CONSTRAINT check_stare
+CHECK (stare in ('NOUA','BUNA', 'DETERIORATA'));
+
+----9. Tabelul Cititor
+CREATE SEQUENCE seq_cititor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 100000
+  NOCACHE
+  NOCYCLE;
+
+CREATE TABLE CITITOR (
+  id_cititor NUMBER(6) CONSTRAINT pk_cititor PRIMARY KEY,
+  nume VARCHAR2(100) NOT NULL,
+  prenume VARCHAR2(100) NOT NULL,
+  email VARCHAR2(100) NOT NULL,
+  nr_telefon VARCHAR2(14) NOT NULL,
+  data_inscriere DATE
+);
+
+
+----10. Tabelul Imprumut
+CREATE SEQUENCE seq_imprumut
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 100000000
+  NOCACHE
+  NOCYCLE;
+
+CREATE TABLE IMPRUMUT (
+  id_imprumut NUMBER(6) CONSTRAINT pk_imprumut PRIMARY KEY,
+  id_exemplar NUMBER(6) NOT NULL,
+  id_cititor NUMBER(6) NOT NULL,
+  data_imprumut DATE NOT NULL,
+  data_returnare DATE,
+  taxa NUMBER(10,2),
+  CONSTRAINT fk_exemplar FOREIGN KEY (id_exemplar) REFERENCES EXEMPLAR(id_exemplar),
+  CONSTRAINT fk_cititor FOREIGN KEY (id_cititor) REFERENCES CITITOR(id_cititor)
+);
+
+ALTER TABLE IMPRUMUT
+ADD CONSTRAINT check_data
+CHECK (data_returnare >= data_imprumut);
+
+--5 INSERAREA DATELOR
+----1. Tabelul Bibliotecar
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES(seq_bibliotecar.NEXTVAL, 'Popescu', 'Ion', 'ion.popescu@yahoo.com', '0712345678', 2000, 
+TO_DATE('01-01-1990', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Ionescu', 'Maria', 'maria.ionescu@gmail.com', '0723456789', 3500, 
+TO_DATE('01-02-1995', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Popa', 'Mihai', 'mihai.popa@gmail.com', '0734567890', 3200, 
+TO_DATE('01-03-2000', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Georgescu', 'Ana', 'ana.georgescu@gmail.com', '0745678901', 3100, 
+TO_DATE('01-04-2005', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Radu', 'Adrian', 'adrian.radu@yahoo.com', '0756789012', 3300, 
+TO_DATE('01-05-2010', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Pop', 'Andreea', 'andreea.pop@yahoo.com', '0767890123', 3400, 
+TO_DATE('01-06-2015', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Badea', 'Mircea', 'mircea.badea@gmail.com', '0778901234', 2100, 
+TO_DATE('01-07-2020', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Diaconu', 'Elena', 'elena.diaconu@gmail.com', '0789012345', 3200, 
+TO_DATE('01-08-2021', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Marinescu', 'George', 'george@yahoo.com', '0790123456', 3100, 
+TO_DATE('01-09-2022', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar.NEXTVAL, 'Dumitru', 'Raluca', 'raluca.dumitru@yahoo.com', '0701234567', 1800, 
+TO_DATE('01-10-2023', 'DD-MM-YYYY'));
+
+----2. Tabelul Sectiune
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (1, 1, 'Matematica');
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (2, 2, 'IT');
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (3, 3, 'Fizica');
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (4, 4, 'Literatura');
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (5, 5, 'Diverse');
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune) VALUES (6, 7, 'Dezvoltare Personala');
+
+----3. Tabelul Categorie
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (1, 1, 'Algebra');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (2, 1, 'Geometrie');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (3, 1, 'Analiza');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (4, 2, 'Algoritmi');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (5, 2, 'Database');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (6, 2, 'Web_dev');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (7, 2, 'Software');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (8, 3, 'Mecanica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (9, 3, 'Optica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (10, 3, 'Astrofizica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (11, 4, 'Clasica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (12, 4, 'Poezie');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (13, 5, 'Manuale');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (14, 5, 'Bibliografii');
+
+----4. Tabelul Editura
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (1, 'Aramis', 'contact@aramis.com', '0721122334');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (2, 'Polirom', 'contact@polirom.ro', '0722233445');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (3, 'Corint', 'contact@corint.com', '0723344556');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (4, 'Niculescu', 'contact@niculescu.ro', '0724455667');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (5, 'Mate2000', 'contact@mate2000.com', '0725566778');
+
+
+----5. Tabelul Autor
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Feynman', 'Richard P.', TO_DATE('11-05-1918', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Watson', 'James D.', TO_DATE('06-04-1928', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Hawking', 'Stephen', TO_DATE('08-01-1942', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Darwin', 'Charles', TO_DATE('12-02-1809', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Kuhn', 'Thomas S.', TO_DATE('18-07-1922', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Austen', 'Jane', TO_DATE('16-12-1775', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Shakespeare', 'William', TO_DATE('26-04-1564', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Goethe', 'Johann Wolfgang', TO_DATE('28-08-1749', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Eminescu', 'Mihai', TO_DATE('15-01-1850', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Hugo', 'Victor', TO_DATE('26-02-1802', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Dostoevsky', 'Fyodor', TO_DATE('11-11-1821', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Popescu', 'Radu');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Ionescu', 'Maria', TO_DATE('02-02-1980', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Radu', 'Andrei');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Dumitrescu', 'Ana', TO_DATE('04-04-1970', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Georgescu', 'Mihai');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Constantin', 'Elena', TO_DATE('06-06-1995', 'DD-MM-YYYY'));
+
+----6. Tabelul Carte
+--INSERARE ÎN CARTE
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 3, 'Introducere in analiza matematica', 350);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 3, 'Analiza - ecuatii diferentiale', 2010, 450);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare) VALUES (seq_carte.NEXTVAL, 1, 2, 'Geometrie euclidiana', 2009);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 2, 'Introducere in geometria diferentiala', 2011, 450);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 2, 'Geometrie computationala', 2007, 400);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 1, 'Teoria grupurilor si aplicatii', 400);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare) VALUES (seq_carte.NEXTVAL, 1, 8, 'Mecanica: Fundamente si aplicatii', 2005);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 9, 'Introducere in optica geometrica', 2010, 250);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 10, 'Astrofizica: Galaxii si stele', 2018, 400);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 8, 'Mecanica cuantica si statistica', 2008, 280);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 10, 'Originea si evolutia Universului', 2015, 350);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 5, 'Baze de date relationale', 400);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 7, 'Dezvoltare software:tehnici moderne', 2016, 350);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu) VALUES (seq_carte.NEXTVAL, 3, 6, 'Aplicatii web dinamice');
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 4, 'Algoritmi si structuri de date', 2010, 450);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 5, 'Introducere in bazele de date', 2018, 280);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 4, 'Programare orientata pe obiecte', 2015, 400);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 6, 'Dezvoltare web cu HTML si CSS', 2013, 320);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 4, 'Algoritmi si structuri de date avansate', 2017, 500);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 7, 'Testare si calitatea software', 2022, 350);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 11, 'Mândrie si prejudecata', 1813, 320);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 11, 'Romeo si Julieta', 1597, 256);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 11, 'Faust', 1808, 480);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 12, 'Luceafarul', 1883, 160);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 11, 'Mizerabilii', 1862, 1488);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 11, 'Crima si pedeapsa', 1866, 672);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 13, 'The Feynman Lectures on Physics', 1963, 1552);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 10, 'A Brief History of Time', 1988, 256);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 13, 'The Origin of Species', 1859, 502);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 13, 'The Structure of Scientific Revolutions', 1962, 264);
+INSERT INTO CARTE (id_carte, id_editura, id_categorie, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 10, 'The Double Helix', 1968, 226);
+
+
+----7. Tabelul scriere
+INSERT INTO SCRIERE VALUES (12, 1);
+INSERT INTO SCRIERE VALUES (13, 2);
+INSERT INTO SCRIERE VALUES (14, 3);
+INSERT INTO SCRIERE VALUES (15, 4);
+INSERT INTO SCRIERE VALUES (16, 5);
+INSERT INTO SCRIERE VALUES (13, 5);
+INSERT INTO SCRIERE VALUES (17, 6);
+INSERT INTO SCRIERE VALUES (12, 7);
+INSERT INTO SCRIERE VALUES (13, 8);
+INSERT INTO SCRIERE VALUES (14, 9);
+INSERT INTO SCRIERE VALUES (15, 10);
+INSERT INTO SCRIERE VALUES (16, 11);
+INSERT INTO SCRIERE VALUES (17, 11);
+INSERT INTO SCRIERE VALUES (12, 11);
+INSERT INTO SCRIERE VALUES (17, 12);
+INSERT INTO SCRIERE VALUES (12, 13);
+INSERT INTO SCRIERE VALUES (13, 14);
+INSERT INTO SCRIERE VALUES (14, 15);
+INSERT INTO SCRIERE VALUES (15, 16);
+INSERT INTO SCRIERE VALUES (17, 16);
+INSERT INTO SCRIERE VALUES (16, 17);
+INSERT INTO SCRIERE VALUES (17, 18);
+INSERT INTO SCRIERE VALUES (12, 19);
+INSERT INTO SCRIERE VALUES (13, 20);
+INSERT INTO SCRIERE VALUES (12, 20);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Austen' AND prenume = 'Jane'), 21);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Shakespeare' AND prenume = 'William'), 22);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Goethe' AND prenume = 'Johann Wolfgang'), 23);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Eminescu' AND prenume = 'Mihai'), 24);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Hugo' AND prenume = 'Victor'),25);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Dostoevsky' AND prenume = 'Fyodor'),26);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Feynman' AND prenume = 'Richard P.'), 27);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Hawking' AND prenume = 'Stephen'), 28);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Darwin' AND prenume = 'Charles'), 29);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Kuhn' AND prenume = 'Thomas S.'), 30);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Watson' AND prenume = 'James D.'), 31);
+
+----8. Tabelul Exemplar
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 1, 'DISPONIBIL','NOUA' ); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 1, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 1, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 2, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 2, 'DISPONIBIL','NOUA');
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 2, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 3, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 3, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 4, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 5, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 6, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 6, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 6, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 7, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 8, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 8, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 9, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 10, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 11, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 12, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 13, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 13, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 14, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 15, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 16, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 16, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 17, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 18, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 19, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 20, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 20, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 20, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 20, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 21, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 22, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 23, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 24, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 25, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 26, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 26, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 27, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 27, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 28, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 28, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 28, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 29, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 29, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 29, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 29, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 30, 'DISPONIBIL','DETERIORATA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 30, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 31, 'DISPONIBIL','NOUA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 31, 'DISPONIBIL','BUNA'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 31, 'DISPONIBIL','DETERIORATA'); 
+
+----9. Tabelul Cititor
+  
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popovici', 'Elena', 'popovici.elena@gmail.com', '0721122334', TO_DATE('2010-03-12', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Iorgulescu', 'Andrei', 'iorgu.andrei@yahoo.com', '0732233445', TO_DATE('2011-06-25', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popescu', 'Maria', 'popescu.maria@gmail.com', '0743344556', TO_DATE('2012-08-10', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Georgescu', 'Alexandru', 'georgescu.alex@yahoo.com', '0754455667', TO_DATE('2013-02-18', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Radu', 'Cristina', 'radu.cristina@gmail.com', '0765566778', TO_DATE('2014-11-05', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Petrescu', 'Ionut', 'petrescu.ionut@yahoo.com', '0776677889', TO_DATE('2015-09-20', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Constantin', 'Andreea', 'andreea.const@gmail.com', '0787788990', TO_DATE('2016-07-03', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Mihai', 'Adrian', 'mihai.adrian@yahoo.com', '0798899001', TO_DATE('2017-04-15', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popa', 'Alexandra', 'popa.alexandra@gmail.com', '0700011122', TO_DATE('2018-12-28', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Balan', 'Razvan', 'balan.razvan@yahoo.com', '0711122233', TO_DATE('2019-10-30', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Ionascu', 'Ion', 'ion@yahoo.com', '0711122233', TO_DATE('2019-10-30', 'YYYY-MM-DD'));
+SELECT * FROM CITITOR;
+
+----10. Tabelul Imprumut
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 7, 1, TO_DATE('2018-05-15', 'YYYY-MM-DD'), TO_DATE('2018-06-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 3, 2, TO_DATE('2019-02-20', 'YYYY-MM-DD'), TO_DATE('2019-03-25', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 22, 2, TO_DATE('2020-09-10', 'YYYY-MM-DD'), TO_DATE('2020-10-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 22, 4, TO_DATE('2021-07-05', 'YYYY-MM-DD'), TO_DATE('2021-08-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 24, 5, TO_DATE('2022-03-15', 'YYYY-MM-DD'), TO_DATE('2022-05-15', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 33, 6, TO_DATE('2022-08-10', 'YYYY-MM-DD'), TO_DATE('2022-09-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 32, 6, TO_DATE('2022-12-20', 'YYYY-MM-DD'), TO_DATE('2023-01-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 29, 7, TO_DATE('2023-04-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 26, 9, TO_DATE('2023-03-01', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 5, 10, TO_DATE('2022-12-30', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 32, 10, TO_DATE('2023-04-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 6, 8, TO_DATE('2023-04-15', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 42, 3, TO_DATE('2023-02-21', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 2, 2, TO_DATE('2023-03-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 10, 1, TO_DATE('2023-05-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 27, 1, TO_DATE('2023-05-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 40, 4, TO_DATE('2023-04-28', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 43, 4, TO_DATE('2023-04-01', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 47, 4, TO_DATE('2023-04-23', 'YYYY-MM-DD'));
+
+
+----Actualizarea datelor din tabele:
+====EXEMPLAR
+UPDATE EXEMPLAR
+SET status = (
+  SELECT 
+        CASE
+            WHEN data_returnare IS NOT NULL THEN 'DISPONIBIL'
+            ELSE 'IMPRUMUTAT'
+        END
+  FROM IMPRUMUT
+  WHERE id_exemplar = EXEMPLAR.id_exemplar
+  ORDER BY data_imprumut DESC
+  FETCH FIRST 1 ROW ONLY
+)
+WHERE id_exemplar IN (
+  SELECT id_exemplar
+  FROM IMPRUMUT
+);
+
+====IMPRUMUT
+UPDATE IMPRUMUT
+SET taxa = CASE
+    WHEN data_returnare IS NOT NULL AND (data_returnare - data_imprumut) > 40 THEN (data_returnare - data_imprumut - 40) *0.5
+END;
+
+
+--6.SUBPROGRAM STOCAT INDEPENDENT CU 3 TIPURI DE COLECTII
+
+CREATE OR REPLACE PROCEDURE INFO_CARTI_CATEGORII_IN_SECTIUNE IS
+    -- TABLOU IMBRICAT cu numele sectiunilor
+    TYPE tabel_imbricat_sectiune IS TABLE OF SECTIUNE%ROWTYPE;
+   
+    t_sectiune tabel_imbricat_sectiune := tabel_imbricat_sectiune();
+    
+    -- VECTOR pentru numele categoriilor (estimativ stim ca nu ar putea fi mai mult de 20 de categorii intr-o sectiune)
+    TYPE vector_categorii IS VARRAY(20) OF CATEGORIE%ROWTYPE;
+    v_categorii vector_categorii;
+    
+    -- TABLOU INDEXAT pentru titlurile cartilor
+    TYPE tabel_indexat_carti IS TABLE OF CARTE.titlu%TYPE INDEX BY PLS_INTEGER;
+    t_carti tabel_indexat_carti;
+    
+    BEGIN
+        SELECT *
+        BULK COLLECT INTO t_sectiune
+        FROM SECTIUNE;
+        
+        FOR i IN 1..t_sectiune.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------------------------');
+            SELECT *
+            BULK COLLECT INTO v_categorii
+            FROM CATEGORIE
+            WHERE ID_SECTIUNE = t_sectiune(i).id_sectiune;
+            
+            IF v_categorii.COUNT > 0 THEN
+                DBMS_OUTPUT.PUT_LINE(i||'. SECTIUNEA ' || t_sectiune(i).nume_sectiune || ' contine urmatoarele categorii: ');
+                FOR j IN 1..v_categorii.COUNT LOOP
+                    SELECT titlu
+                    BULK COLLECT INTO t_carti
+                    FROM CARTE
+                    WHERE ID_CATEGORIE = v_categorii(j).id_categorie;
+                    
+                    IF t_carti.COUNT > 0 THEN
+                        DBMS_OUTPUT.PUT_LINE('      ' || j || '. CATEGORIA ' || UPPER( v_categorii(j).nume_categorie) || ' contine urmatoarele carti: ');
+                        FOR k IN 1..t_carti.COUNT LOOP
+                            DBMS_OUTPUT.PUT_LINE('                  --> CARTE: ' || t_carti(k));
+                        END LOOP;
+                    ELSE
+                        DBMS_OUTPUT.PUT_LINE('      ' || j || '. CATEGORIA ' || UPPER(v_categorii(j).nume_categorie) || ' nu contine nicio carte inca! ');
+                    END IF;
+                END LOOP;
+            ELSE
+                DBMS_OUTPUT.PUT_LINE(i||'. SECTIUNEA '|| UPPER(t_sectiune(i).nume_sectiune) || ' nu contine nicio categorie inca! ');
+            END IF;
+        END LOOP;
+        DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------------------------');
+        DBMS_OUTPUT.PUT_LINE(' ');
+    END INFO_CARTI_CATEGORII_IN_SECTIUNE;
+/
+
+--Apelarea subprogramului
+BEGIN
+    INFO_CARTI_CATEGORII_IN_SECTIUNE;
+END;
+/
+
+
+
+--7. SUBPROGRAM STOCAT INDEPENDENT CU 2 TIPURI DE CURSOARE
+
+CREATE OR REPLACE PROCEDURE info_imprumuturi_cititor (v_nume_cititor IN cititor.nume%TYPE) IS
+    -- Cursor neparametrizat care preia cititorii al caror nume se potriveste numele dat ca parametru subprogramului
+    CURSOR c_cititor IS
+        SELECT c.nume, c.prenume, c.id_cititor
+        FROM CITITOR C 
+        WHERE UPPER(C.NUME) = UPPER(v_nume_cititor);
+    
+    -- Cursor parametrizat care preia informatii despre imprumuturile fiecarui cititor dat ca parametru
+    CURSOR c_imprumuturi(v_id_cititor cititor.id_cititor%TYPE) IS
+        SELECT i.id_imprumut, c.titlu, i.data_imprumut, i.data_returnare, e.stare
+        FROM IMPRUMUT i
+        JOIN EXEMPLAR e ON i.id_exemplar = e.id_exemplar
+        JOIN CARTE c ON e.id_carte = c.id_carte
+        WHERE i.id_cititor = v_id_cititor;
+
+    v_exista_cititori BOOLEAN := FALSE;
+    v_nr_imprumuturi NUMBER;
+
+BEGIN
+    FOR i IN c_cititor LOOP
+        v_exista_cititori := TRUE;
+        
+        DBMS_OUTPUT.PUT_LINE('------------------------');
+        DBMS_OUTPUT.PUT_LINE(i.nume || ' ' || i.prenume);
+
+        v_nr_imprumuturi := 0;
+
+        FOR j IN c_imprumuturi(i.id_cititor) LOOP
+            v_nr_imprumuturi := v_nr_imprumuturi + 1;
+            
+            DBMS_OUTPUT.PUT_LINE(v_nr_imprumuturi || '. Imprumutul cu ID-ul ' || j.id_imprumut || ': ' || j.titlu 
+              || ', Data Imprumutului: ' || TO_CHAR(j.data_imprumut, 'DD-MON-YYYY')
+              || ', Data Returnarii: ' || NVL(TO_CHAR(j.data_returnare, 'DD-MON-YYYY'), '-') 
+              || ', Starea: ' || j.stare);
+        END LOOP;
+        IF v_nr_imprumuturi > 0 THEN 
+            DBMS_OUTPUT.PUT_LINE('Total imprumuturi: ' || v_nr_imprumuturi);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Cititorul nu are imprumuturi!');
+        END IF;
+    END LOOP;
+    IF NOT v_exista_cititori THEN 
+        DBMS_OUTPUT.PUT_LINE('Nu s-a gasit niciun cititor in baza de date cu acest nume!');
+    END IF;
+END info_imprumuturi_cititor;
+/
+
+
+--Am mai inserat niste date in tabele ca sa putem testa mai multe variante
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Iorgulescu', 'Alexandra', 'alexandra.iorg@gmail.com', '0721122334', TO_DATE('2010-03-12', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 7, 12, TO_DATE('2024-01-8', 'YYYY-MM-DD'));
+rollback;
+/
+--verificam pentru mai multi cititori cu acest nume
+begin
+    info_imprumuturi_cititor('Iorgulescu');
+end;
+/
+--verificam pentru un cititor care nu are imprumuturi
+begin
+    info_imprumuturi_cititor('Ionascu');
+end;
+/
+--verificam pentru un cititor care nu exista in baza de date
+begin
+    info_imprumuturi_cititor('Voicu');
+end;
+
+
+
+--8 SUBPROGRAM STOCAT INDEPENDENT DE TIP FUNCTII IN CARE SE DEFINESC MINIM 2 EXCEPTII NOI
+
+
+CREATE OR REPLACE FUNCTION NrExemplareDeteriorate
+(v_nume_editura editura.nume_editura%TYPE)
+ RETURN VARCHAR2
+    v_lista_carti VARCHAR2(4000);
+    v_nr_edituri NUMBER;
+    custom_no_data_found exception;
+    custom_too_many_rows exception;
+    fara_exemplare_deteriorate exception;
+
+BEGIN
+        SELECT COUNT(*)
+        INTO v_nr_edituri
+        FROM editura
+        WHERE nume_editura = v_nume_editura;
+
+        IF v_nr_edituri = 0 THEN 
+            RAISE custom_no_data_found;
+        ELSIF v_nr_edituri > 1 THEN 
+            RAISE custom_too_many_rows;
+        END IF;
+  
+    FOR i IN (
+        SELECT c.titlu, c.an_publicare, COUNT(e.id_exemplar) AS numar_exemplare_deteriorate
+        FROM CARTE c
+        JOIN EXEMPLAR e ON c.id_carte = e.id_carte
+        JOIN EDITURA ed ON c.id_editura = ed.id_editura
+        WHERE ed.nume_editura = v_nume_editura AND e.stare = UPPER('deteriorata')
+        GROUP BY c.titlu, c.an_publicare
+    )
+    LOOP
+        v_lista_carti := v_lista_carti || 'Titlu: ' || i.titlu || ', An Publicare: ' || i.an_publicare ||
+                       ', Numar Exemplare Deteriorate: ' || i.numar_exemplare_deteriorate || CHR(10);
+    END LOOP;
+
+    --verific daca lista returnata este goala
+    IF v_lista_carti IS NULL THEN
+        RAISE fara_exemplare_deteriorate;
+    END IF;
+    
+    RETURN v_lista_carti;
+    
+    EXCEPTION
+        WHEN custom_no_data_found THEN
+            DBMS_OUTPUT.PUT_LINE ('Nu exista editura in baza de date cu acest nume!');
+            RETURN NULL;
+        WHEN custom_too_many_rows THEN 
+            DBMS_OUTPUT.PUT_LINE('Exista mai multe edituri in baza de date cu acest nume!');
+            RETURN NULL;
+        WHEN fara_exemplare_deteriorate THEN 
+            DBMS_OUTPUT.PUT_LINE('Nu exista carti deteriorate pentru editura specificata.');
+            RETURN NULL;
+        WHEN OTHERS THEN 
+            DBMS_OUTPUT.PUT_LINE('Alta Eroare!');
+            DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+            DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+        RETURN NULL;
+        
+END NrExemplareDeteriorate;
+/
+--cazul fericit
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('EDITURA Aramis');
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE(NrExemplareDeteriorate('Aramis'));
+END;
+/
+--custom_no_data_found exception
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('EDITURA NUEXISTA');
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE(NrExemplareDeteriorate('NUEXISTA'));
+END;
+/
+--custom_too_many_rows exception
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('EDITURA NumeNou');
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE(NrExemplareDeteriorate('NumeNou'));
+END;
+/
+--fara_exemplare_deteriorate exception
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('EDITURA FaraCarti');
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE(NrExemplareDeteriorate('FaraCarti'));
+END;
+/
+
+
+--Pentru ilustrarea tuturor exceptiilor din acest exercitiu am adaugat 3 inregistrari noi in tabelul editura:
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (6, 'NumeNou', 'contact@test.com', '0721122334');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (7, 'NumeNou', 'contact@test.com', '0721122334');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (8, 'FaraCarti', 'contact@test.com', '0721122334');
+
+select * from editura;
+
+
+--9. SUBPROGRAM STOCAT INDEPENDENT DE TIP PROCEDURA CU 5 TABELE SI EXCEPTII
+
+CREATE OR REPLACE PROCEDURE RaportAutor(
+    p_nume_autor VARCHAR2
+) AS
+    TYPE info_carte IS RECORD (
+        titlu VARCHAR2(100),
+        categ VARCHAR2(100),
+        nr_exemplare NUMBER,
+        nr_imprumuturi NUMBER,
+        popularitate NUMBER(10,2)
+        --procentul pe care il reprezinta din nr total de imprumuturi
+    );
+
+    TYPE lista_carti_autor IS TABLE OF info_carte;
+    
+    v_id_autor AUTOR.id_autor%TYPE;
+    v_total_imprumuturi NUMBER;
+    v_rez lista_carti_autor := lista_carti_autor();
+    nu_exista_carti exception;
+    PRAGMA EXCEPTION_INIT (nu_exista_carti, -20002);
+    
+BEGIN
+
+    SELECT id_autor INTO v_id_autor
+    FROM AUTOR
+    WHERE UPPER(nume) = UPPER(p_nume_autor);
+
+    SELECT COUNT(*) INTO v_total_imprumuturi
+    FROM IMPRUMUT;
+
+
+    FOR rec IN (
+        SELECT
+            c.titlu,
+            cg.nume_categorie,
+            COUNT(DISTINCT e.id_exemplar) AS numar_exemplare,
+            COUNT(i.id_imprumut) AS numar_imprumuturi,
+            ROUND(COUNT(i.id_imprumut) * 100 / v_total_imprumuturi, 2)AS procentaj
+        FROM SCRIERE s
+        JOIN CARTE c ON s.id_carte = c.id_carte
+        JOIN CATEGORIE cg ON c.id_categorie = cg.id_categorie
+        LEFT JOIN EXEMPLAR e ON c.id_carte = e.id_carte
+        LEFT JOIN IMPRUMUT i ON e.id_exemplar = i.id_exemplar
+        WHERE s.id_autor = v_id_autor
+        GROUP BY c.titlu, cg.nume_categorie
+    ) LOOP
+        
+        v_rez.EXTEND;
+        v_rez(v_rez.LAST).titlu := rec.titlu;
+        v_rez(v_rez.LAST).categ := rec.nume_categorie;
+        v_rez(v_rez.LAST).nr_exemplare := rec.numar_exemplare;
+        v_rez(v_rez.LAST).nr_imprumuturi := rec.numar_imprumuturi;
+        v_rez(v_rez.LAST).popularitate := rec.procentaj;
+    END LOOP;
+    
+    IF v_rez.COUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Biblioteca nu detine nicio carte ce apartine acestui autor!');
+    END IF;
+
+
+    FOR i IN 1..v_rez.COUNT LOOP
+        DBMS_OUTPUT.PUT_LINE('Titlu: ' || v_rez(i).titlu || ', Categorie: ' || v_rez(i).categ || ', Număr Exemplare: ' || v_rez(i).nr_exemplare || ', Număr Împrumuturi: ' || v_rez(i).nr_imprumuturi || ', Procentaj Popularitate: ' || v_rez(i).popularitate || '%');
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Nu s-a gasit niciun autor cu numele dat in baza de date!');
+    WHEN TOO_MANY_ROWS THEN 
+        DBMS_OUTPUT.PUT_LINE ('In baza de date exista mai multi autori cu acest nume!');
+    WHEN ZERO_DIVIDE THEN 
+        DBMS_OUTPUT.PUT_LINE ('Nu exista imprumuturi inregistrare in baza de date! Procentajul nu poate fi calculat corect prin impartirea la 0!');
+    WHEN nu_exista_carti THEN
+        DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+        DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+    WHEN OTHERS THEN 
+        DBMS_OUTPUT.PUT_LINE('Alta Eroare!');
+        DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+        DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+END RaportAutor;
+/
+
+--Pentru a putea testa tratarea tuturor exceptiilor am facut cateva inserari noi in tabelul autor:
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Avram', 'Monica', TO_DATE('02-02-1982', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Popescu', 'Mihai', TO_DATE('02-02-1980', 'DD-MM-YYYY'));
+
+select * from autor;
+
+--PARTEA DE TESTARE
+
+BEGIN
+    --cazul fericit
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Ionescu');
+    RaportAutor('Ionescu');
+    DBMS_OUTPUT.NEW_LINE;
+    --NO_DATA_FOUND
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Voicu');
+    RaportAutor('Voicu');
+    DBMS_OUTPUT.NEW_LINE;
+
+    --TOO_MANY_ROWS
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Popescu');
+    RaportAutor('Popescu');
+    DBMS_OUTPUT.NEW_LINE;
+
+    --nu_exista_carti exception
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Avram');
+    RaportAutor('Avram');
+    DBMS_OUTPUT.NEW_LINE;
+
+END;
+/
+
+
+SELECT * FROM IMPRUMUT;
+DELETE FROM IMPRUMUT;
+ROLLBACK;
+
+--zero_divide
+/
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Ionescu');
+    RaportAutor('Ionescu');
+    DBMS_OUTPUT.NEW_LINE;
+END;
+
+/
+
+--10. Trigger LMD la nivel de comanda
+CREATE OR REPLACE TRIGGER program_biblioteca
+    BEFORE INSERT OR DELETE OR UPDATE ON IMPRUMUT
+BEGIN
+    IF (TO_CHAR(SYSDATE, 'D') = 1) OR
+       ((TO_CHAR(SYSDATE, 'D') = 7) AND TO_CHAR(SYSDATE, 'HH24') NOT BETWEEN 9 AND 12) OR
+       (TO_CHAR(SYSDATE, 'HH24') NOT BETWEEN 8 AND 15)
+    THEN 
+        DBMS_OUTPUT.PUT_LINE('PROGRAM CU PUBLICUL');
+        DBMS_OUTPUT.PUT_LINE('Luni-Vineri: 08.00-16.00');
+        DBMS_OUTPUT.PUT_LINE('Sambata: 09.00-13.00');
+        DBMS_OUTPUT.PUT_LINE('Duminica: INCHIS!');
+        IF INSERTING THEN 
+            RAISE_APPLICATION_ERROR(-20001, 'Nu se pot face imprumuturi in afara programului cu publicul!'); 
+        ELSIF DELETING THEN 
+            RAISE_APPLICATION_ERROR(-20002, 'Nu se pot anula imprumuturi in afara programului cu publicul!'); 
+        ELSE  
+            RAISE_APPLICATION_ERROR(-20003, 'Nu se pot returna carti in afara programului cu publicul!'); 
+        END IF; 
+    END IF; 
+END;
+/
+
+--verificam INSERT
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 35, 4, TO_DATE('2023-04-23', 'YYYY-MM-DD'));
+ROLLBACK;
+
+--verificam UPDATE
+UPDATE IMPRUMUT SET DATA_RETURNARE = SYSDATE WHERE id_imprumut = 15;
+
+--verificam DELETE
+DELETE FROM IMPRUMUT WHERE id_imprumut = 1;
+
+SELECT TO_CHAR(SYSDATE, 'DD-MM-YYYY HH24:MI') AS data_si_ora FROM dual;
+
+alter trigger program_biblioteca disable;
+
+--11. Trigger LMD la nivel de linie
+CREATE OR REPLACE TRIGGER data_retur_incorecta
+BEFORE UPDATE OF data_returnare ON imprumut
+FOR EACH ROW
+BEGIN
+    IF(:NEW.data_returnare > SYSDATE)
+        THEN RAISE_APPLICATION_ERROR(-20000, 
+        'Ati introdus o valoare invalida pentru data returnarii! 
+        Aceasta nu poate fi mai mare decat data zilei curente.');
+    END IF;
+END;
+/
+UPDATE IMPRUMUT 
+SET DATA_RETURNARE = SYSDATE+1 
+WHERE id_imprumut = 15;
+ALTER TRIGGER data_retur_incorecta DISABLE;
+
+--12.Trigger LDD
+CREATE OR REPLACE TRIGGER modificare_BD
+BEFORE CREATE OR ALTER OR DROP
+ON SCHEMA
+DECLARE
+    ora_inceput NUMBER := 8;
+    ora_sfarsit NUMBER := 15;
+    zi_nelucratoare NUMBER := 1; -- duminica
+BEGIN
+    IF TO_NUMBER(TO_CHAR(SYSDATE, 'D')) = zi_nelucratoare OR
+       TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')) NOT BETWEEN ora_inceput AND ora_sfarsit
+    THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Programul de lucru s-a terminat! Se pot face modificari in baza de date doar in intervalul 08.00-16.00');
+    END IF;
+END;
+
+/
+--testare CREATE
+create table cititor_aux as select * from cititor;
+
+--testare ALTER
+alter table cititor drop column data_inscriere;
+
+--testare DROP
+drop table scriere;
+
+ALTER TRIGGER modificare_BD DISABLE;
+
+
+--13.
+CREATE OR REPLACE PACKAGE proiectSGBD AS
+
+    PROCEDURE exercitiul6;
+    PROCEDURE exercitiul7(v_nume_cititor cititor.nume%TYPE);
+    FUNCTION exercitiul8(v_nume_editura editura.nume_editura%TYPE) RETURN VARCHAR2;
+    PROCEDURE exercitiul9(p_nume_autor VARCHAR2);
+
+END proiectSGBD;
+
+CREATE OR REPLACE PACKAGE BODY proiectSGBD AS
+    PROCEDURE exercitiul6 IS
+    
+    TYPE tabel_imbricat_sectiune IS TABLE OF SECTIUNE%ROWTYPE;
+   
+    t_sectiune tabel_imbricat_sectiune := tabel_imbricat_sectiune();
+    
+    TYPE vector_categorii IS VARRAY(20) OF CATEGORIE%ROWTYPE;
+    v_categorii vector_categorii;
+    
+    TYPE tabel_indexat_carti IS TABLE OF CARTE.titlu%TYPE INDEX BY PLS_INTEGER;
+    t_carti tabel_indexat_carti;
+    
+    BEGIN
+        SELECT *
+        BULK COLLECT INTO t_sectiune
+        FROM SECTIUNE;
+        
+        FOR i IN 1..t_sectiune.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------------------------');
+            SELECT *
+            BULK COLLECT INTO v_categorii
+            FROM CATEGORIE
+            WHERE ID_SECTIUNE = t_sectiune(i).id_sectiune;
+            
+            IF v_categorii.COUNT > 0 THEN
+                DBMS_OUTPUT.PUT_LINE(i||'. SECTIUNEA ' || t_sectiune(i).nume_sectiune || ' contine urmatoarele categorii: ');
+                FOR j IN 1..v_categorii.COUNT LOOP
+                    SELECT titlu
+                    BULK COLLECT INTO t_carti
+                    FROM CARTE
+                    WHERE ID_CATEGORIE = v_categorii(j).id_categorie;
+                    
+                    IF t_carti.COUNT > 0 THEN
+                        DBMS_OUTPUT.PUT_LINE('      ' || j || '. CATEGORIA ' || UPPER( v_categorii(j).nume_categorie) || ' contine urmatoarele carti: ');
+                        FOR k IN 1..t_carti.COUNT LOOP
+                            DBMS_OUTPUT.PUT_LINE('                  --> CARTE: ' || t_carti(k));
+                        END LOOP;
+                    ELSE
+                        DBMS_OUTPUT.PUT_LINE('      ' || j || '. CATEGORIA ' || UPPER(v_categorii(j).nume_categorie) || ' nu contine nicio carte inca! ');
+                    END IF;
+                END LOOP;
+            ELSE
+                DBMS_OUTPUT.PUT_LINE(i||'. SECTIUNEA '|| UPPER(t_sectiune(i).nume_sectiune) || ' nu contine nicio categorie inca! ');
+            END IF;
+        END LOOP;
+        DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------------------------');
+        DBMS_OUTPUT.PUT_LINE(' ');
+        
+    END exercitiul6;
+    
+    PROCEDURE exercitiul7 (v_nume_cititor cititor.nume%TYPE) IS
+    -- Cursor neparametrizat care preia cititorii al caror nume se potriveste numele dat ca parametru subprogramului
+    CURSOR c_cititor IS
+        SELECT c.nume, c.prenume, c.id_cititor
+        FROM CITITOR C 
+        WHERE UPPER(C.NUME) = UPPER(v_nume_cititor);
+    
+    -- Cursor parametrizat care preia informatii despre imprumuturile fiecarui cititor dat ca parametru
+    CURSOR c_imprumuturi(v_id_cititor cititor.id_cititor%TYPE) IS
+        SELECT i.id_imprumut, c.titlu, i.data_imprumut, i.data_returnare, e.stare
+        FROM IMPRUMUT i
+        JOIN EXEMPLAR e ON i.id_exemplar = e.id_exemplar
+        JOIN CARTE c ON e.id_carte = c.id_carte
+        WHERE i.id_cititor = v_id_cititor;
+
+    v_exista_cititori BOOLEAN := FALSE;
+    v_nr_imprumuturi NUMBER;
+
+BEGIN
+    FOR i IN c_cititor LOOP
+        v_exista_cititori := TRUE;
+        
+        DBMS_OUTPUT.PUT_LINE('------------------------');
+        DBMS_OUTPUT.PUT_LINE(i.nume || ' ' || i.prenume);
+
+        v_nr_imprumuturi := 0;
+
+        FOR j IN c_imprumuturi(i.id_cititor) LOOP
+            v_nr_imprumuturi := v_nr_imprumuturi + 1;
+            
+            DBMS_OUTPUT.PUT_LINE(v_nr_imprumuturi || '. Imprumutul cu ID-ul ' || j.id_imprumut || ': ' || j.titlu 
+              || ', Data Imprumutului: ' || TO_CHAR(j.data_imprumut, 'DD-MON-YYYY')
+              || ', Data Returnarii: ' || NVL(TO_CHAR(j.data_returnare, 'DD-MON-YYYY'), '-') 
+              || ', Starea: ' || j.stare);
+        END LOOP;
+        IF v_nr_imprumuturi > 0 THEN 
+            DBMS_OUTPUT.PUT_LINE('Total imprumuturi: ' || v_nr_imprumuturi);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Cititorul nu are imprumuturi!');
+        END IF;
+    END LOOP;
+    IF NOT v_exista_cititori THEN 
+        DBMS_OUTPUT.PUT_LINE('Nu s-a gasit niciun cititor in baza de date cu acest nume!');
+    END IF;
+    END exercitiul7;
+    
+    FUNCTION exercitiul8
+    (v_nume_editura editura.nume_editura%TYPE)
+    RETURN VARCHAR2
+    IS
+        v_lista_carti VARCHAR2(4000);
+        v_nr_edituri NUMBER;
+        custom_no_data_found exception;
+        custom_too_many_rows exception;
+        fara_exemplare_deteriorate exception;
+    
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_nr_edituri
+        FROM editura
+        WHERE nume_editura = v_nume_editura;
+
+        IF v_nr_edituri = 0 THEN 
+            RAISE custom_no_data_found;
+        ELSIF v_nr_edituri > 1 THEN 
+            RAISE custom_too_many_rows;
+        END IF;
+  
+    FOR i IN (
+        SELECT c.titlu, c.an_publicare, COUNT(e.id_exemplar) AS numar_exemplare_deteriorate
+        FROM CARTE c
+        JOIN EXEMPLAR e ON c.id_carte = e.id_carte
+        JOIN EDITURA ed ON c.id_editura = ed.id_editura
+        WHERE ed.nume_editura = v_nume_editura AND e.stare = UPPER('deteriorata')
+        GROUP BY c.titlu, c.an_publicare
+    )
+    LOOP
+        v_lista_carti := v_lista_carti || 'Titlu: ' || i.titlu || ', An Publicare: ' || i.an_publicare ||
+                       ', Numar Exemplare Deteriorate: ' || i.numar_exemplare_deteriorate || CHR(10);
+    END LOOP;
+
+    --verific daca lista returnata este goala
+    IF v_lista_carti IS NULL THEN
+        RAISE fara_exemplare_deteriorate;
+    END IF;
+    
+    RETURN v_lista_carti;
+    
+    EXCEPTION
+        WHEN custom_no_data_found THEN
+            DBMS_OUTPUT.PUT_LINE ('Nu exista editura in baza de date cu acest nume!');
+            RETURN NULL;
+        WHEN custom_too_many_rows THEN 
+            DBMS_OUTPUT.PUT_LINE('Exista mai multe edituri in baza de date cu acest nume!');
+            RETURN NULL;
+        WHEN fara_exemplare_deteriorate THEN 
+            DBMS_OUTPUT.PUT_LINE('Nu exista carti deteriorate pentru editura specificata.');
+            RETURN NULL;
+        WHEN OTHERS THEN 
+            DBMS_OUTPUT.PUT_LINE('Alta Eroare!');
+            DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+            DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+        RETURN NULL;
+        
+    END exercitiul8;
+    
+    PROCEDURE exercitiul9(
+    p_nume_autor VARCHAR2
+    ) AS
+    TYPE info_carte IS RECORD (
+        titlu VARCHAR2(100),
+        categ VARCHAR2(100),
+        nr_exemplare NUMBER,
+        nr_imprumuturi NUMBER,
+        popularitate NUMBER(10,2)
+        --procentul pe care il reprezinta din nr total de imprumuturi
+    );
+
+    TYPE lista_carti_autor IS TABLE OF info_carte;
+    
+    v_id_autor AUTOR.id_autor%TYPE;
+    v_total_imprumuturi NUMBER;
+    v_rez lista_carti_autor := lista_carti_autor();
+    nu_exista_carti exception;
+    PRAGMA EXCEPTION_INIT (nu_exista_carti, -20002);
+    
+BEGIN
+
+    SELECT id_autor INTO v_id_autor
+    FROM AUTOR
+    WHERE UPPER(nume) = UPPER(p_nume_autor);
+
+    SELECT COUNT(*) INTO v_total_imprumuturi
+    FROM IMPRUMUT;
+
+
+    FOR rec IN (
+        SELECT
+            c.titlu,
+            cg.nume_categorie,
+            COUNT(DISTINCT e.id_exemplar) AS numar_exemplare,
+            COUNT(i.id_imprumut) AS numar_imprumuturi,
+            ROUND(COUNT(i.id_imprumut) * 100 / v_total_imprumuturi, 2)AS procentaj
+        FROM SCRIERE s
+        JOIN CARTE c ON s.id_carte = c.id_carte
+        JOIN CATEGORIE cg ON c.id_categorie = cg.id_categorie
+        LEFT JOIN EXEMPLAR e ON c.id_carte = e.id_carte
+        LEFT JOIN IMPRUMUT i ON e.id_exemplar = i.id_exemplar
+        WHERE s.id_autor = v_id_autor
+        GROUP BY c.titlu, cg.nume_categorie
+    ) LOOP
+        
+        v_rez.EXTEND;
+        v_rez(v_rez.LAST).titlu := rec.titlu;
+        v_rez(v_rez.LAST).categ := rec.nume_categorie;
+        v_rez(v_rez.LAST).nr_exemplare := rec.numar_exemplare;
+        v_rez(v_rez.LAST).nr_imprumuturi := rec.numar_imprumuturi;
+        v_rez(v_rez.LAST).popularitate := rec.procentaj;
+    END LOOP;
+    
+    IF v_rez.COUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Biblioteca nu detine nicio carte ce apartine acestui autor!');
+    END IF;
+
+
+    FOR i IN 1..v_rez.COUNT LOOP
+        DBMS_OUTPUT.PUT_LINE('Titlu: ' || v_rez(i).titlu || ', Categorie: ' || v_rez(i).categ || ', Număr Exemplare: ' || v_rez(i).nr_exemplare || ', Număr Împrumuturi: ' || v_rez(i).nr_imprumuturi || ', Procentaj Popularitate: ' || v_rez(i).popularitate || '%');
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Nu s-a gasit niciun autor cu numele dat in baza de date!');
+    WHEN TOO_MANY_ROWS THEN 
+        DBMS_OUTPUT.PUT_LINE ('In baza de date exista mai multi autori cu acest nume!');
+    WHEN ZERO_DIVIDE THEN 
+        DBMS_OUTPUT.PUT_LINE ('Nu exista imprumuturi inregistrare in baza de date! Procentajul nu poate fi calculat corect prin impartirea la 0!');
+    WHEN nu_exista_carti THEN
+        DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+        DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+    WHEN OTHERS THEN 
+        DBMS_OUTPUT.PUT_LINE('Alta Eroare!');
+        DBMS_OUTPUT.PUT_LINE('Codul de Eroare asociat '||SQLCODE);
+        DBMS_OUTPUT.PUT_LINE('Mesajul de Eroare asociat '||SQLERRM);
+    END exercitiul9;
+END proiectSGBD;
+/
+BEGIN
+
+    proiectSGBD.exercitiul6;
+    proiectSGBD.exercitiul7('Iorgulescu');
+    DBMS_OUTPUT.PUT_LINE('EDITURA Aramis');
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE(proiectSGBD.exercitiul8('Aramis'));
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE('NUMELE AUTORULUI: Ionescu');
+    proiectSGBD.exercitiul9('Ionescu');
+END;
+/ 
+    
+    

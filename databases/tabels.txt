@@ -1,0 +1,565 @@
+--10. CREAREA SECVENȚELOR
+CREATE SEQUENCE seq_autor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 2000
+  NOCACHE
+  NOCYCLE;
+
+CREATE SEQUENCE seq_carte 
+START WITH 100 
+INCREMENT BY 1
+MAXVALUE 3000
+NOCYCLE;
+
+CREATE SEQUENCE seq_cititor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 9000
+  NOCACHE
+  NOCYCLE;
+
+CREATE SEQUENCE seq_bibliotecar_id
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 100
+  NOCYCLE;
+
+CREATE SEQUENCE seq_rezervare
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 10000
+  NOCACHE
+  NOCYCLE;
+
+CREATE SEQUENCE seq_taxa 
+START WITH 1 
+INCREMENT BY 1
+MAXVALUE 10000
+NOCACHE
+NOCYCLE;
+
+CREATE SEQUENCE seq_exemplar 
+START WITH 1000 
+INCREMENT BY 1
+MAXVALUE 9000
+NOCACHE
+NOCYCLE;
+
+CREATE SEQUENCE seq_imprumut
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 10000
+  NOCACHE
+  NOCYCLE;
+  
+  
+--11. CREAREA TABELELOR
+-- Creare Tabela AUTOR
+CREATE TABLE AUTOR (
+  id_autor NUMBER(6) CONSTRAINT pk_autor PRIMARY KEY,
+  nume VARCHAR2(25) NOT NULL,
+  prenume VARCHAR2(25) NOT NULL,
+  data_nastere DATE
+);
+
+--Creare Tabela EDITURA
+CREATE TABLE EDITURA (
+  id_editura NUMBER(6) CONSTRAINT pk_editura PRIMARY KEY,
+  nume_editura VARCHAR2(25) NOT NULL,
+  email VARCHAR2(25) NOT NULL,
+  nr_telefon VARCHAR2(10)
+);
+
+--Creare Tabela CARTE
+CREATE TABLE CARTE (
+  id_carte NUMBER(6) CONSTRAINT pk_carte PRIMARY KEY,
+  id_editura NUMBER(6) NOT NULL,
+  titlu VARCHAR2(40) NOT NULL,
+  an_publicare NUMBER(4),
+  numar_pagini NUMBER(4),
+  CONSTRAINT fk_carte_editura FOREIGN KEY (id_editura) REFERENCES EDITURA(id_editura)
+);
+
+-- Creare tabela SCRIERE
+CREATE TABLE SCRIERE (
+  id_autor NUMBER(6) NOT NULL,
+  id_carte NUMBER(6) NOT NULL,
+  CONSTRAINT fk_autor FOREIGN KEY (id_autor) REFERENCES AUTOR(id_autor),
+  CONSTRAINT fk_carte FOREIGN KEY (id_carte) REFERENCES CARTE(id_carte),
+  CONSTRAINT pk_autor_scrie_carte PRIMARY KEY(id_autor, id_carte)
+);
+
+--Creare Tabela CITITOR
+CREATE TABLE CITITOR (
+  id_cititor NUMBER(6) CONSTRAINT pk_cititor PRIMARY KEY,
+  nume VARCHAR2(25) NOT NULL,
+  prenume VARCHAR2(25) NOT NULL,
+  email VARCHAR2(25) NOT NULL,
+  nr_telefon VARCHAR2(10) NOT NULL,
+  data_inscriere DATE
+);
+
+-- Tabela BIBLIOTECAR
+CREATE TABLE BIBLIOTECAR (
+  id_bibliotecar NUMBER(6) CONSTRAINT pk_bibliotecar PRIMARY KEY,
+  nume VARCHAR2(25) NOT NULL,
+  prenume VARCHAR2(25) NOT NULL,
+  email VARCHAR2(25) NOT NULL,
+  nr_telefon VARCHAR2(10),
+  salariu NUMBER NOT NULL,
+  data_angajare DATE NOT NULL
+);
+
+-- Tabela SECTIUNE
+CREATE TABLE SECTIUNE (
+  id_sectiune NUMBER(6) CONSTRAINT pk_sectiune PRIMARY KEY,
+  id_bibliotecar NUMBER(6) NOT NULL,
+  nume_sectiune VARCHAR2(10) NOT NULL,
+  nr_raft NUMBER(3) NOT NULL,
+  CONSTRAINT fk_sectiune_bibliotecar FOREIGN KEY (id_bibliotecar) REFERENCES BIBLIOTECAR(id_bibliotecar)
+);
+
+-- Tabela CATEGORIE
+CREATE TABLE CATEGORIE (
+  id_categorie NUMBER(6) CONSTRAINT pk_categorie PRIMARY KEY,
+  id_sectiune NUMBER(6) NOT NULL,
+  nume_categorie VARCHAR2(25) NOT NULL,
+  CONSTRAINT fk_categorie_sectiune FOREIGN KEY (id_sectiune) REFERENCES SECTIUNE(id_sectiune)
+);
+
+-- Creare tabela REZERVARE
+CREATE TABLE REZERVARE (
+  id_rezervare NUMBER(6) PRIMARY KEY,
+  id_carte NUMBER(6),
+  id_cititor NUMBER(6),
+  CONSTRAINT fk_rezervare_carte FOREIGN KEY (id_carte) REFERENCES CARTE (id_carte),
+  CONSTRAINT fk_rezervare_cititor FOREIGN KEY (id_cititor) REFERENCES CITITOR (id_cititor)
+);
+
+-- Creare tabela TAXA
+CREATE TABLE TAXA (
+  id_taxa NUMBER(6) PRIMARY KEY,
+  suma NUMBER,
+  status VARCHAR2(10),
+  data_achitare DATE
+);
+
+-- Tabela EXEMPLAR
+CREATE TABLE EXEMPLAR (
+  id_exemplar NUMBER(6) CONSTRAINT pk_exemplar PRIMARY KEY,
+  id_carte NUMBER(6) NOT NULL,
+  id_categorie NUMBER(6) NOT NULL,
+  status VARCHAR2(10),
+  CONSTRAINT fk_exemplar_carte FOREIGN KEY (id_carte) REFERENCES CARTE(id_carte),
+  CONSTRAINT fk_exemplar_categorie FOREIGN KEY (id_categorie) REFERENCES CATEGORIE(id_categorie)
+);
+
+-- Creare tabela IMPRUMUT
+CREATE TABLE IMPRUMUT (
+  id_imprumut NUMBER(6) CONSTRAINT pk_imprumut PRIMARY KEY,
+  id_exemplar NUMBER(6) NOT NULL,
+  id_cititor NUMBER(6) NOT NULL,
+  id_taxa NUMBER(6) NOT NULL,
+  data_imprumut DATE,
+  data_returnare DATE,
+  CONSTRAINT fk_exemplar FOREIGN KEY (id_exemplar) REFERENCES EXEMPLAR(id_exemplar),
+  CONSTRAINT fk_cititor FOREIGN KEY (id_cititor) REFERENCES CITITOR(id_cititor),
+  CONSTRAINT fk_taxa FOREIGN KEY (id_taxa) REFERENCES TAXA(id_taxa)
+);
+
+--------------------------------------------------------------------------------------------------------------------------------
+--INSERAREA DATELOR IN TABELELE DEFINITE ANTERIOR
+--1. TABELA AUTOR
+-- CREARE SECVENTA PENTRU AUTOR
+CREATE SEQUENCE seq_autor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 2000
+  NOCACHE
+  NOCYCLE;
+
+--INSERARE IN AUTOR
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Feynman', 'Richard P.', TO_DATE('11-05-1918', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Watson', 'James D.', TO_DATE('06-04-1928', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Hawking', 'Stephen', TO_DATE('08-01-1942', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Darwin', 'Charles', TO_DATE('12-02-1809', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Kuhn', 'Thomas S.', TO_DATE('18-07-1922', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Austen', 'Jane', TO_DATE('16-12-1775', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Shakespeare', 'William', TO_DATE('26-04-1564', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Goethe', 'Johann Wolfgang', TO_DATE('28-08-1749', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Eminescu', 'Mihai', TO_DATE('15-01-1850', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Hugo', 'Victor', TO_DATE('26-02-1802', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Dostoevsky', 'Fyodor', TO_DATE('11-11-1821', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Popescu', 'Radu');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Ionescu', 'Maria', TO_DATE('02-02-1980', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Radu', 'Andrei');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Dumitrescu', 'Ana', TO_DATE('04-04-1970', 'DD-MM-YYYY'));
+INSERT INTO AUTOR (id_autor, nume, prenume) VALUES (seq_autor.NEXTVAL, 'Georgescu', 'Mihai');
+INSERT INTO AUTOR (id_autor, nume, prenume, data_nastere) VALUES (seq_autor.NEXTVAL, 'Constantin', 'Elena', TO_DATE('06-06-1995', 'DD-MM-YYYY'));
+
+SELECT * FROM AUTOR;
+
+--2.TABELA EDITURA
+--INSERARE IN EDITURA
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (1, 'Aramis', 'contact@aramis.com', '0721122334');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (2, 'Polirom', 'contact@polirom.ro', '0722233445');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (3, 'Corint', 'contact@corint.com', '0723344556');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (4, 'Niculescu', 'contact@niculescu.ro', '0724455667');
+INSERT INTO EDITURA (id_editura, nume_editura, email, nr_telefon) VALUES (5, 'Mate2000', 'contact@mate2000.com', '0725566778');
+
+SELECT * FROM EDITURA;
+
+--3. TABELA CARTE
+--CREARE SECVENTA PENTRU CARTE
+CREATE SEQUENCE seq_carte 
+START WITH 100 
+INCREMENT BY 1
+MAXVALUE 3000
+NOCYCLE;
+
+--INSERARE ÎN CARTE
+INSERT INTO CARTE (id_carte, id_editura, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'Introducere in analiza matematica', 350);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Analiza - ecuatii diferentiale', 2010, 450);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare) VALUES (seq_carte.NEXTVAL, 1, 'Geometrie euclidiana', 2009);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Introducere in geometria diferentiala', 2011, 450);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 'Geometrie computationala', 2007, 400);
+INSERT INTO CARTE (id_carte, id_editura, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Teoria grupurilor si aplicatii', 400);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare) VALUES (seq_carte.NEXTVAL, 1, 'Mecanica: Fundamente si aplicatii', 2005);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Introducere in optica geometrica', 2010, 250);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 'Astrofizica: Galaxii si stele', 2018, 400);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 'Mecanica cuantica si statistica', 2008, 280);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 'Originea si evolutia Universului', 2015, 350);
+INSERT INTO CARTE (id_carte, id_editura, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'Baze de date relationale', 400);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Dezvoltare software:tehnici moderne', 2016, 350);
+INSERT INTO CARTE (id_carte, id_editura, titlu) VALUES (seq_carte.NEXTVAL, 3, 'Aplicatii web dinamice');
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 'Algoritmi si structuri de date', 2010, 450);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 'Introducere in bazele de date', 2018, 280);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'Programare orientata pe obiecte', 2015, 400);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Dezvoltare web cu HTML si CSS', 2013, 320);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 'Algoritmi si structuri de date avansate', 2017, 500);
+INSERT INTO CARTE (id_carte, id_editura, titlu, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 'Testare si calitatea software', 350);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'Mândrie si prejudecata', 1813, 320);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'Romeo si Julieta', 1597, 256);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 'Faust', 1808, 480);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 'Luceafarul', 1883, 160);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'Mizerabilii', 1862, 1488);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 'Crima si pedeapsa', 1866, 672);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 1, 'The Feynman Lectures on Physics', 1963, 1552);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 3, 'A Brief History of Time', 1988, 256);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 4, 'The Origin of Species', 1859, 502);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 5, 'The Structure of Scientific Revolutions', 1962, 264);
+INSERT INTO CARTE (id_carte, id_editura, titlu, an_publicare, numar_pagini) VALUES (seq_carte.NEXTVAL, 2, 'The Double Helix', 1968, 226);
+SELECT * FROM CARTE;
+
+--4. TABELA SCRIERE
+-- INSERARE IN SCRIERE
+INSERT INTO SCRIERE VALUES (12, 100);
+INSERT INTO SCRIERE VALUES (13, 101);
+INSERT INTO SCRIERE VALUES (14, 102);
+INSERT INTO SCRIERE VALUES (15, 103);
+INSERT INTO SCRIERE VALUES (16, 104);
+INSERT INTO SCRIERE VALUES (13, 104);
+INSERT INTO SCRIERE VALUES (17, 105);
+INSERT INTO SCRIERE VALUES (12, 106);
+INSERT INTO SCRIERE VALUES (13, 107);
+INSERT INTO SCRIERE VALUES (14, 108);
+INSERT INTO SCRIERE VALUES (15, 109);
+INSERT INTO SCRIERE VALUES (16, 110);
+INSERT INTO SCRIERE VALUES (17, 110);
+INSERT INTO SCRIERE VALUES (12, 110);
+INSERT INTO SCRIERE VALUES (17, 111);
+INSERT INTO SCRIERE VALUES (12, 112);
+INSERT INTO SCRIERE VALUES (13, 113);
+INSERT INTO SCRIERE VALUES (14, 114);
+INSERT INTO SCRIERE VALUES (15, 115);
+INSERT INTO SCRIERE VALUES (17, 115);
+INSERT INTO SCRIERE VALUES (16, 116);
+INSERT INTO SCRIERE VALUES (17, 117);
+INSERT INTO SCRIERE VALUES (12, 118);
+INSERT INTO SCRIERE VALUES (13, 119);
+INSERT INTO SCRIERE VALUES (12, 119);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Austen' AND prenume = 'Jane'), 120);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Shakespeare' AND prenume = 'William'), 121);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Goethe' AND prenume = 'Johann Wolfgang'), 122);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Eminescu' AND prenume = 'Mihai'), 123);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Hugo' AND prenume = 'Victor'),124);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Dostoevsky' AND prenume = 'Fyodor'),125);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Feynman' AND prenume = 'Richard P.'), 126);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Hawking' AND prenume = 'Stephen'), 127);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Darwin' AND prenume = 'Charles'), 128);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Kuhn' AND prenume = 'Thomas S.'), 129);
+INSERT INTO SCRIERE (id_autor, id_carte) VALUES ((SELECT id_autor FROM AUTOR WHERE nume = 'Watson' AND prenume = 'James D.'), 130);
+
+SELECT * FROM SCRIERE;
+
+--5. TABELA CITITOR
+-- CREARE SECVENTA PENTRU CITITOR
+CREATE SEQUENCE seq_cititor
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 9000
+  NOCACHE
+  NOCYCLE;
+  
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popovici', 'Elena', 'popovici.elena@gmail.com', '0721122334', TO_DATE('2010-03-12', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Iorgulescu', 'Andrei', 'iorgu.andrei@yahoo.com', '0732233445', TO_DATE('2011-06-25', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popescu', 'Maria', 'popescu.maria@gmail.com', '0743344556', TO_DATE('2012-08-10', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Georgescu', 'Alexandru', 'georgescu.alex@yahoo.com', '0754455667', TO_DATE('2013-02-18', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Radu', 'Cristina', 'radu.cristina@gmail.com', '0765566778', TO_DATE('2014-11-05', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Petrescu', 'Ionut', 'petrescu.ionut@yahoo.com', '0776677889', TO_DATE('2015-09-20', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Constantin', 'Andreea', 'andreea.const@gmail.com', '0787788990', TO_DATE('2016-07-03', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Mihai', 'Adrian', 'mihai.adrian@yahoo.com', '0798899001', TO_DATE('2017-04-15', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Popa', 'Alexandra', 'popa.alexandra@gmail.com', '0700011122', TO_DATE('2018-12-28', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Balan', 'Razvan', 'balan.razvan@yahoo.com', '0711122233', TO_DATE('2019-10-30', 'YYYY-MM-DD'));
+INSERT INTO CITITOR (id_cititor, nume, prenume, email, nr_telefon, data_inscriere) VALUES (seq_cititor.NEXTVAL, 'Ionascu', 'Ion', 'ion@yahoo.com', '0711122233', TO_DATE('2019-10-30', 'YYYY-MM-DD'));
+SELECT * FROM CITITOR;
+delete from cititor;
+
+--6. TABELA BIBLIOTECAR
+--CREAREA SECVENTA PENTRU BIBLIOTECAR
+CREATE SEQUENCE seq_bibliotecar_id
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 100
+  NOCYCLE;
+  
+--INSERARE IN BIBLIOTECAR
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES(seq_bibliotecar_id.NEXTVAL, 'Popescu', 'Ion', 'ion.popescu@yahoo.com', '0712345678', 2000, 
+TO_DATE('01-01-1990', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Ionescu', 'Maria', 'maria.ionescu@gmail.com', '0723456789', 3500, 
+TO_DATE('01-02-1995', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Popa', 'Mihai', 'mihai.popa@gmail.com', '0734567890', 3200, 
+TO_DATE('01-03-2000', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Georgescu', 'Ana', 'ana.georgescu@gmail.com', '0745678901', 3100, 
+TO_DATE('01-04-2005', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Radu', 'Adrian', 'adrian.radu@yahoo.com', '0756789012', 3300, 
+TO_DATE('01-05-2010', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Pop', 'Andreea', 'andreea.pop@yahoo.com', '0767890123', 3400, 
+TO_DATE('01-06-2015', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Badea', 'Mircea', 'mircea.badea@gmail.com', '0778901234', 2100, 
+TO_DATE('01-07-2020', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Diaconu', 'Elena', 'elena.diaconu@gmail.com', '0789012345', 3200, 
+TO_DATE('01-08-2021', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Marinescu', 'George', 'george@yahoo.com', '0790123456', 3100, 
+TO_DATE('01-09-2022', 'DD-MM-YYYY'));
+INSERT INTO BIBLIOTECAR (id_bibliotecar, nume, prenume, email, nr_telefon, salariu, data_angajare) 
+VALUES (seq_bibliotecar_id.NEXTVAL, 'Dumitru', 'Raluca', 'raluca.dumitru@yahoo.com', '0701234567', 1800, 
+TO_DATE('01-10-2023', 'DD-MM-YYYY'));
+
+SELECT * FROM BIBLIOTECAR;
+
+--7. TABELA SECTIUNE
+--INSERARE IN SECTIUNE
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune, nr_raft) VALUES (1, 1, 'Matematica', 1);
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune, nr_raft) VALUES (2, 2, 'IT', 2);
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune, nr_raft) VALUES (3, 3, 'Fizica', 3);
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune, nr_raft) VALUES (4, 4, 'Literatura', 4);
+INSERT INTO SECTIUNE (id_sectiune, id_bibliotecar, nume_sectiune, nr_raft) VALUES (5, 5, 'Diverse', 5);
+SELECT * FROM SECTIUNE;
+
+--8. TABELA CATEGORIE
+--INSERARE IN CATEGORIE
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (1, 1, 'Algebra');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (2, 1, 'Geometrie');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (3, 1, 'Analiza');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (4, 2, 'Algoritmi');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (5, 2, 'Database');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (6, 2, 'Web_dev');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (7, 2, 'Software');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (8, 3, 'Mecanica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (9, 3, 'Optica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (10, 3, 'Astrofizica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (11, 4, 'Clasica');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (12, 4, 'Poezie');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (13, 5, 'Manuale');
+INSERT INTO CATEGORIE (id_categorie, id_sectiune, nume_categorie) VALUES (14, 5, 'Bibliografii');
+
+SELECT * FROM CATEGORIE;
+
+--9. TABELA REZERVARE
+--CREARE SECVENTA PENTRU REZERVARE
+CREATE SEQUENCE seq_rezervare
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 10000
+  NOCACHE
+  NOCYCLE;
+
+--INSERARE IN REZERVARE
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 100, 1);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 130, 2);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 127, 3);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 114, 4);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 115, 5);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 114, 6);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 114, 6);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 114, 4);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 123, 5);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 126, 6);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 113, 9);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 123, 9);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 115, 7);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 117, 1);
+INSERT INTO REZERVARE (id_rezervare, id_carte, id_cititor) VALUES (seq_rezervare.NEXTVAL, 117, 3);
+SELECT * FROM REZERVARE;
+
+--10. TABELA TAXA
+-- CREARE SECVENTA PENTRU TAXA
+CREATE SEQUENCE seq_taxa 
+START WITH 1 
+INCREMENT BY 1
+MAXVALUE 10000
+NOCACHE
+NOCYCLE;
+
+--INSERARE IN TAXA
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+INSERT INTO TAXA (id_taxa) VALUES (seq_taxa.NEXTVAL);
+
+SELECT * FROM TAXA;
+
+--11. TABELA EXEMPLAR
+-- CREARE SECVENTA PENTRU EXEMPLAR
+CREATE SEQUENCE seq_exemplar 
+START WITH 1000 
+INCREMENT BY 1
+MAXVALUE 9000
+NOCACHE
+NOCYCLE;
+
+--INSERARE IN EXEMPLAR
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 100,  3, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 100,  3, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 100,  3, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 101,  3, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 101,  3, 'disponibil');
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 101,  3, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 102,  2, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 102,  2, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 103,  2, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 104,  2, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 105,  1, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 105,  1, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 105, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 106,  8, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 107,  9, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 107,  2, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 108, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 109,  8, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 110, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 111,  5, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 112,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 112,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 113,  6, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 114,  5, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 115,  5, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 115,  5, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 116,  4, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 117,  6, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 118,  4, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 119,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 119,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 119,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 119,  7, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 120, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 121, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 122, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 123, 12, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 124, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 125, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 125, 11, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 126, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 126, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 127, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 127, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 127, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 128, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 128, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 128, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 128, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 129, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 129, 13, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 130,  8, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 130, 10, 'disponibil'); 
+INSERT INTO EXEMPLAR VALUES(seq_exemplar.NEXTVAL, 130, 13, 'disponibil'); 
+SELECT * FROM EXEMPLAR;
+
+--12. TABELA IMPRUMUT
+--CREARE SECVENTA PENTRU IMPRUMUT
+CREATE SEQUENCE seq_imprumut
+  START WITH 1
+  INCREMENT BY 1
+  MAXVALUE 10000
+  NOCACHE
+  NOCYCLE;
+  
+--INSERARE IN IMPRUMUT
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1008, 1, 1, TO_DATE('2018-05-15', 'YYYY-MM-DD'), TO_DATE('2018-06-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1004, 2, 2, TO_DATE('2019-02-20', 'YYYY-MM-DD'), TO_DATE('2019-03-25', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1023, 2, 3, TO_DATE('2020-09-10', 'YYYY-MM-DD'), TO_DATE('2020-10-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1023, 4, 4, TO_DATE('2021-07-05', 'YYYY-MM-DD'), TO_DATE('2021-08-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1025, 5, 5, TO_DATE('2022-03-15', 'YYYY-MM-DD'), TO_DATE('2022-05-15', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1034, 6, 6, TO_DATE('2022-08-10', 'YYYY-MM-DD'), TO_DATE('2022-09-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut, data_returnare)
+VALUES (seq_imprumut.NEXTVAL, 1033, 6, 7, TO_DATE('2022-12-20', 'YYYY-MM-DD'), TO_DATE('2023-01-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1030, 7, 8, TO_DATE('2023-04-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1027, 9, 9, TO_DATE('2023-03-01', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1006, 10, 10, TO_DATE('2022-12-30', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1033, 10, 11, TO_DATE('2023-04-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1007, 8, 12, TO_DATE('2023-04-15', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1043, 3, 13, TO_DATE('2023-02-21', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1003, 2, 14, TO_DATE('2023-03-05', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1011, 1, 15, TO_DATE('2023-05-10', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1028, 1, 16, TO_DATE('2023-05-20', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1041, 4, 17, TO_DATE('2023-04-28', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1044, 4, 18, TO_DATE('2023-04-01', 'YYYY-MM-DD'));
+INSERT INTO IMPRUMUT (id_imprumut, id_exemplar, id_cititor, id_taxa, data_imprumut)
+VALUES (seq_imprumut.NEXTVAL, 1048, 4, 19, TO_DATE('2023-04-23', 'YYYY-MM-DD'));
+SELECT * FROM IMPRUMUT;
